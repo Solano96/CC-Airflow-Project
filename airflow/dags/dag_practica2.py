@@ -135,7 +135,7 @@ train_arima_temperature = PythonOperator(
 )
 
 download_v1 = BashOperator(
-    task_id='download_dockerfile_v1',
+    task_id='download_v1',
     bash_command='''curl -o {temp_dir}/v1/Dockerfile https://raw.githubusercontent.com/Solano96/CC-Airflow-Project/master/v1/Dockerfile;
                     curl -o {temp_dir}/v1/requirements.txt https://raw.githubusercontent.com/Solano96/CC-Airflow-Project/master/v1/requirements.txt;
                     curl -o {temp_dir}/v1/microservicio.py https://raw.githubusercontent.com/Solano96/CC-Airflow-Project/master/v1/microservicio.py;
