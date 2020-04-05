@@ -34,7 +34,7 @@ dag = DAG(
 # Create temp dir
 create_temp_dir = BashOperator(
     task_id='create_temp_dir',
-    bash_command=f'mkdir -p {temp_dir}',
+    bash_command=f'mkdir -p {temp_dir}; mkdir -p {temp_dir}/v1; mkdir -p {temp_dir}/v2;',
     dag=dag,
 )
 
@@ -134,9 +134,40 @@ train_arima_temperature = PythonOperator(
     dag=dag,
 )
 
+download_v1 = BashOperator(
+    task_id='download_dockerfile_v1',
+    bash_command='''curl -o {temp_dir}/v1/Dockerfile https://raw.githubusercontent.com/Solano96/CC-Airflow-Project/master/v1/Dockerfile;
+                    curl -o {temp_dir}/v1/requirements.txt https://raw.githubusercontent.com/Solano96/CC-Airflow-Project/master/v1/requirements.txt;
+                    curl -o {temp_dir}/v1/microservicio.py https://raw.githubusercontent.com/Solano96/CC-Airflow-Project/master/v1/microservicio.py;
+                    curl -o {temp_dir}/v1/test_microservicio.py https://raw.githubusercontent.com/Solano96/CC-Airflow-Project/master/v1/test_microservicio.py''',
+    dag=dag,
+)
+
+run_test_v1 = BashOperator(
+    task_id='run_test_v1',
+    bash_command='python3 -m pytest /tmp/airflow_data/v1',
+    dag=dag,
+)
+
+create_image_v1 = BashOperator(
+    task_id='create_image_v1',
+    bash_command='docker build /tmp/airflow_data/v1 -t microservicio_v1',
+    dag=dag,
+)
+
+
+deploy_microservice_v1 = BashOperator(
+    task_id='deploy_microservice_v1',
+    bash_command='docker run --detach -p 80:5000 microservicio_v1',
+    dag=dag,
+)
 
 create_temp_dir >> [download_humidity, download_temperature]
 download_humidity >> unzip_humidity
 download_temperature >> unzip_temperature
 [unzip_humidity, unzip_temperature] >> merge_data >> deploy_docker >> insert_data
-insert_data >> [train_arima_humidity, train_arima_temperature]
+insert_data >> [train_arima_humidity, train_arima_temperature] >> run_test_v1
+
+create_temp_dir >> download_v1 >> run_test_v1
+
+run_test_v1 >> create_image_v1 >> deploy_microservice_v1

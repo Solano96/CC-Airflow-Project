@@ -73,7 +73,7 @@ def train_arima(**kwargs):
     df = pd.DataFrame(list(collection.find({})))
     df = df.dropna()
 
-    model = pm.auto_arima(df[kwargs['column_name']], start_p=1, start_q=1,
+    model = pm.auto_arima(df[column_name], start_p=1, start_q=1,
                           test='adf',       # use adftest to find optimal 'd'
                           max_p=3, max_q=3, # maximum p and q
                           m=1,              # frequency of series
@@ -86,7 +86,7 @@ def train_arima(**kwargs):
                           suppress_warnings=True,
                           stepwise=True)
 
-    with open('/tmp/airflow_data/model_test.pkl', 'wb') as pkl:
+    with open(f'/tmp/airflow_data/v1/arima_{column_name}.pkl', 'wb') as pkl:
         pickle.dump(model, pkl)
 
     return model
