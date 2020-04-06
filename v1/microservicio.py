@@ -10,11 +10,11 @@ app = Flask(__name__)
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 # Get humidity arima model
-with open('/tmp/airflow_data/v1/arima_humidity.pkl', 'rb') as pkl:
+with open('./arima_humidity.pkl', 'rb') as pkl:
     model_humidity = pickle.load(pkl)
 
 # Get temperature arima model
-with open('/tmp/airflow_data/v1/arima_temperature.pkl', 'rb') as pkl:
+with open('./arima_temperature.pkl', 'rb') as pkl:
     model_temperature = pickle.load(pkl)
 
 @app.route('/servicio/v1/prediccion/<int:n_periods>horas/', methods=['GET'])
