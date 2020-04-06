@@ -290,13 +290,13 @@ download_v2 = BashOperator(
 
 run_test_v1 = BashOperator(
     task_id='run_test_v1',
-    bash_command='python3 -m pytest /tmp/airflow_data/v1',
+    bash_command='cd /tmp/airflow_data/v1; python3 -m pytest;',
     dag=dag,
 )
 
 run_test_v2 = BashOperator(
     task_id='run_test_v2',
-    bash_command='python3 -m pytest /tmp/airflow_data/v2',
+    bash_command='cd /tmp/airflow_data/v2; python3 -m pytest;',
     dag=dag,
 )
 
